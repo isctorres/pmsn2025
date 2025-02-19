@@ -6,9 +6,7 @@ class ListStudentsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Material App',
-      home: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: const Text('ALUMNOS'),
         ),
@@ -34,7 +32,6 @@ class ListStudentsScreen extends StatelessWidget {
             )
           ],
         )
-      ),
     );
   }
 }
