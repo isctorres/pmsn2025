@@ -23,16 +23,41 @@ class _TodoScreenState extends State<TodoScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('TODO LIST'),),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.add_task),
+        onPressed: ()=>_dialogBuilder(context)
+      ),
       body: FutureBuilder(
         future: database!.SELECT(), 
         builder: (context, AsyncSnapshot<List<TodoModel>> snapshot) {
           if( snapshot.hasError ){
-            return const Center(child: Text('Algo ocurrio durante la ejecución'),);
+            return Center(child: Text('Algo ocurrio durante la ejecución'),);
+            //Text(snapshot.error.toString()); 
           }else{
             if( snapshot.hasData ){
               return ListView.builder(
+                itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  
+                  var obj = snapshot.data![index];
+                  return Container(
+                    height: 150,
+                    child: Column(
+                      children: [
+                        ListTile(
+                          title: Text(obj.titleTodo!),
+                          subtitle: Text(obj.dateTodo!),
+                          trailing: Builder(builder:(context) {
+                            if( obj.sttTodo! ){
+                              return Icon(Icons.check);
+                            }else{
+                              return Icon(Icons.close);
+                            }
+                          },),
+                        ),
+                        Text(obj.dscTodo!)
+                      ],
+                    ),
+                  );
                 },
               );
             }else{
@@ -43,4 +68,16 @@ class _TodoScreenState extends State<TodoScreen> {
       ),
     );
   }
+
+  Future<void> _dialogBuilder(BuildContext context){
+    return showDialog(
+      context: context, 
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Add Task'),
+        );
+      },
+    );
+  }
+
 }

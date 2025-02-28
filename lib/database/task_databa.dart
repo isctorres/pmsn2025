@@ -29,7 +29,7 @@ class TaskDatabase {
           titleTodo varchar(35),
           dscTodo varchar(100),
           dateTodo varchar(10),
-          sttTodo boolean,
+          sttTodo boolean
         )''';
         db.execute(query);
       },
