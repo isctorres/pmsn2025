@@ -80,7 +80,7 @@ class _TodoScreenState extends State<TodoScreen> {
                                   conDate.text = obj.dateTodo!;
                                   conStts.text = obj.sttTodo!.toString();
 
-                                  _dialogBuilder(context,false);
+                                  _dialogBuilder(context,obj.idTodo!);
                                 }, icon: Icon(Icons.edit, size: 35,)),
                                 IconButton(onPressed: (){
                                   database!.DELETE('todo', obj.idTodo!).then((value) {
@@ -107,12 +107,12 @@ class _TodoScreenState extends State<TodoScreen> {
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context, [bool insert = true]){
+  Future<void> _dialogBuilder(BuildContext context, [int idTodo = 0]){
     return showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: insert ? Text('Add Task') : Text('Edit Task'),
+          title: idTodo == 0 ? Text('Add Task') : Text('Edit Task'),
           content: Container(
             height: 280,
             width: 300,
@@ -155,7 +155,7 @@ class _TodoScreenState extends State<TodoScreen> {
                 Divider(),
                 ElevatedButton(
                   onPressed: (){
-                    if( insert ){
+                    if( idTodo == 0 ){
                       database!.INSERTAR('todo', {
                         'titleTodo' : conTitle.text,
                         'dscTodo' : conDesc.text,
@@ -175,7 +175,25 @@ class _TodoScreenState extends State<TodoScreen> {
                         }
                       },);
                     }else{
-                      
+                      database!.UPDATE('todo', {
+                        'idTodo' : idTodo,
+                        'titleTodo' : conTitle.text,
+                        'dscTodo' : conDesc.text,
+                        'dateTodo' : conDate.text,
+                        'sttTodo' : false
+                      }).then((value) {
+                        if( value > 0 ){
+                          GlobalValues.updList.value = !GlobalValues.updList.value;
+                          ArtSweetAlert.show(
+                            context: context, 
+                            artDialogArgs: ArtDialogArgs(
+                              type: ArtSweetAlertType.success,
+                              title: 'Mensaje de la App',
+                              text: 'Datos actualizados correctamente'
+                            )
+                          );
+                        }
+                      },);
                     }
 
                     conTitle.text = '';
