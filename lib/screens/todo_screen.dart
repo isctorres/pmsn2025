@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pmsn2025/database/task_databa.dart';
 import 'package:pmsn2025/models/todo_model.dart';
+import 'package:pmsn2025/utils/global_values.dart';
 
 class TodoScreen extends StatefulWidget {
   const TodoScreen({super.key});
@@ -34,54 +35,84 @@ class _TodoScreenState extends State<TodoScreen> {
         child: Icon(Icons.add_task),
         onPressed: ()=>_dialogBuilder(context)
       ),
-      body: FutureBuilder(
-        future: database!.SELECT(), 
-        builder: (context, AsyncSnapshot<List<TodoModel>> snapshot) {
-          if( snapshot.hasError ){
-            return //Center(child: Text('Algo ocurrio durante la ejecución'),);
-            Text(snapshot.error.toString()); 
-          }else{
-            if( snapshot.hasData ){
-              return ListView.builder(
-                itemCount: snapshot.data!.length,
-                itemBuilder: (context, index) {
-                  var obj = snapshot.data![index];
-                  return Container(
-                    height: 150,
-                    child: Column(
-                      children: [
-                        ListTile(
-                          title: Text(obj.titleTodo!),
-                          subtitle: Text(obj.dateTodo!),
-                          trailing: Builder(builder:(context) {
-                            if( obj.sttTodo! ){
-                              return Icon(Icons.check);
-                            }else{
-                              return Icon(Icons.close);
-                            }
-                          },),
+      body: ValueListenableBuilder(
+        valueListenable: GlobalValues.updList,
+        builder: (context,value,widget) {
+          return FutureBuilder(
+            future: database!.SELECT(), 
+            builder: (context, AsyncSnapshot<List<TodoModel>> snapshot) {
+              if( snapshot.hasError ){
+                return //Center(child: Text('Algo ocurrio durante la ejecución'),);
+                Text(snapshot.error.toString()); 
+              }else{
+                if( snapshot.hasData ){
+                  return ListView.separated(
+                    separatorBuilder: (context, index) => SizedBox(height: 10,),
+                    padding: EdgeInsets.all(10),
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      var obj = snapshot.data![index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey
                         ),
-                        Text(obj.dscTodo!)
-                      ],
-                    ),
+                        height: 150,
+                        child: Column(
+                          children: [
+                            ListTile(
+                              title: Text(obj.titleTodo!),
+                              subtitle: Text(obj.dateTodo!),
+                              trailing: Builder(builder:(context) {
+                                if( obj.sttTodo! ){
+                                  return Icon(Icons.check);
+                                }else{
+                                  return Icon(Icons.close);
+                                }
+                              },),
+                            ),
+                            Text(obj.dscTodo!),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [ 
+                                IconButton(onPressed: (){
+                                  conTitle.text = obj.titleTodo!;
+                                  conDesc.text = obj.dscTodo!;
+                                  conDate.text = obj.dateTodo!;
+                                  conStts.text = obj.sttTodo!.toString();
+
+                                  _dialogBuilder(context,false);
+                                }, icon: Icon(Icons.edit, size: 35,)),
+                                IconButton(onPressed: (){
+                                  database!.DELETE('todo', obj.idTodo!).then((value) {
+                                    if( value > 0 ){
+                                      GlobalValues.updList.value = !GlobalValues.updList.value;
+                                    }
+                                  },);
+                                }, icon: Icon(Icons.delete, size: 35,))
+                              ],
+                            )
+                          ],
+                        ),
+                      );
+                    },
                   );
-                },
-              );
-            }else{
-              return const Center(child: CircularProgressIndicator(),);
-            }
-          }
-        },
+                }else{
+                  return const Center(child: CircularProgressIndicator(),);
+                }
+              }
+            },
+          );
+        }
       ),
     );
   }
 
-  Future<void> _dialogBuilder(BuildContext context){
+  Future<void> _dialogBuilder(BuildContext context, [bool insert = true]){
     return showDialog(
       context: context, 
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Task'),
+          title: insert ? Text('Add Task') : Text('Edit Task'),
           content: Container(
             height: 280,
             width: 300,
@@ -124,23 +155,34 @@ class _TodoScreenState extends State<TodoScreen> {
                 Divider(),
                 ElevatedButton(
                   onPressed: (){
-                    database!.INSERTAR('todo', {
-                      'titleTodo' : conTitle.text,
-                      'dscTodo' : conDesc.text,
-                      'dateTodo' : conDate.text,
-                      'sttTodo' : false
-                    }).then((value) {
-                      if( value > 0 ){
-                        ArtSweetAlert.show(
-                          context: context, 
-                          artDialogArgs: ArtDialogArgs(
-                            type: ArtSweetAlertType.success,
-                            title: 'Mensaje de la App',
-                            text: 'Datos insertados correctamente'
-                          )
-                        );
-                      }
-                    },);
+                    if( insert ){
+                      database!.INSERTAR('todo', {
+                        'titleTodo' : conTitle.text,
+                        'dscTodo' : conDesc.text,
+                        'dateTodo' : conDate.text,
+                        'sttTodo' : false
+                      }).then((value) {
+                        if( value > 0 ){
+                          GlobalValues.updList.value = !GlobalValues.updList.value;
+                          ArtSweetAlert.show(
+                            context: context, 
+                            artDialogArgs: ArtDialogArgs(
+                              type: ArtSweetAlertType.success,
+                              title: 'Mensaje de la App',
+                              text: 'Datos insertados correctamente'
+                            )
+                          );
+                        }
+                      },);
+                    }else{
+                      
+                    }
+
+                    conTitle.text = '';
+                    conDesc.text = '';
+                    conDate.text = '';
+                    conStts.text = '';
+                    Navigator.pop(context);
                   }, 
                   child: Text('Guardar')
                 )
