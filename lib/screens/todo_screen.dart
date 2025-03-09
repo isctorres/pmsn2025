@@ -82,7 +82,7 @@ class _TodoScreenState extends State<TodoScreen> {
 
                                   _dialogBuilder(context,obj.idTodo!);
                                 }, icon: Icon(Icons.edit, size: 35,)),
-                                IconButton(onPressed: (){
+                                IconButton(onPressed: (){ 
                                   database!.DELETE('todo', obj.idTodo!).then((value) {
                                     if( value > 0 ){
                                       GlobalValues.updList.value = !GlobalValues.updList.value;
