@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:pmsn2025/screens/dashboard_screen.dart';
+import 'package:pmsn2025/screens/detail_popular_screen.dart';
 import 'package:pmsn2025/screens/list_students_screen.dart';
+import 'package:pmsn2025/screens/popular_screen.dart';
 import 'package:pmsn2025/screens/splash_screen.dart';
 import 'package:pmsn2025/screens/todo_screen.dart';
 import 'package:pmsn2025/utils/global_values.dart';
@@ -20,7 +22,9 @@ class MyApp extends StatelessWidget {
           routes: {
             "/list" : (context) => const ListStudentsScreen(), 
             "/dash" : (context) => const DashboardScreen(), 
-            "/todo" : (context) => const TodoScreen()
+            "/todo" : (context) => const TodoScreen(),
+            "/api" : (context) => const PopularScreen(),
+            '/detail' : (context) => DetailPopularScreen()
           },      
           title: 'Material App',
           home: SplashScreen()

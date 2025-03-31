@@ -48,6 +48,13 @@ class DashboardScreen extends StatelessWidget {
               title: Text('Todo App'),
               subtitle: Text('Task List'),
               trailing: Icon(Icons.chevron_right),
+            ),
+            ListTile(
+              onTap: ()=>Navigator.pushNamed(context,"/api"),
+              leading: Icon(Icons.movie),
+              title: Text('Popular API'),
+              subtitle: Text('List Popular Movies'),
+              trailing: Icon(Icons.chevron_right),
             )
           ],
         ),
